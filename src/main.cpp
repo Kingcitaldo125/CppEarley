@@ -1,13 +1,11 @@
 #include <iostream>
 #include <algorithm>
-#include <array>
-#include <chrono>
 #include <fstream>
 #include <set>
 #include <sstream>
 #include <string>
 #include <map>
-#include <thread>
+#include <regex>
 #include <tuple>
 #include <vector>
 
@@ -217,5 +215,6 @@ S_grammar_type_t process_grammar(const std::vector<std::string>& gramm_raw)
 
 int main(int argc, char*argv[])
 {
+	cout << "Hello_World\n";
 	return 0;
 }
