@@ -3,3 +3,13 @@
 
 # Caches
 *cache*/
+
+# Visual Studio stuff
+*.vs/
+*.vcxproj.filters
+*.vcxproj.user
+
+# Debug / Release dirs
+*Debug/
+*Release/
+
