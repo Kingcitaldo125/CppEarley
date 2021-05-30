@@ -1,31 +1,13 @@
 #include <iostream>
-#include <algorithm>
-#include <fstream>
-#include <set>
 #include <sstream>
 #include <string>
-#include <map>
 #include <regex>
-#include <tuple>
-#include <vector>
+
+#include "grammar.h"
 
 
 using std::cout;
 using std::endl;
-
-
-namespace Earley
-{
-	using S_state_type_t = std::tuple<std::string, std::string, int>;
-	using S_set_type_t = std::set<S_state_type_t>;
-	using S_type_t = std::vector<S_set_type_t>;
-	using S_grammar_type_t = std::multimap<std::string, std::string>;
-
-	const char dot = '`';
-	const std::string prod_split = " | ";
-	const std::set<std::string> nonterminals{ "P", "S", "M", "T" };
-	const std::set<std::string> parts_of_speech{ "+", "*", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
-}
 
 using Earley::S_state_type_t;
 using Earley::S_set_type_t;
@@ -60,7 +42,12 @@ bool is_terminal(const std::string& strng)
 
 bool is_finished(const S_state_type_t& state)
 {
-	auto prod = std::get<1>(state);
+	std::string prod = std::get<1>(state);
+
+	cout << "Prod " << prod << endl;
+	cout << "Prod Size " << prod.size() << endl;
+	cout << "DotPos " << prod.find(Earley::dot) << endl;
+
 	return prod.find(Earley::dot) >= prod.size() - 1;
 }
 
@@ -92,22 +79,83 @@ std::string get_next_element(const S_state_type_t& state)
 }
 
 
-bool predict(S_type_t& S, const int k, const std::string& elem, S_state_type_t& state, const std::string& words)
+std::vector<std::string> split(const std::string& strng, const char delim)
 {
-	return true;
+	std::vector<std::string> retvec;
+	std::stringstream ss(strng);
+	std::string holder;
+
+	while (ss)
+	{
+		std::getline(ss, holder, delim);
+		retvec.push_back(holder);
+	}
+	retvec.pop_back(); // take out the final, extra, element
+
+	return retvec;
+}
+
+
+std::vector<std::string> prod_split(const std::string& strng)
+{
+	std::vector<std::string> retvec;
+
+	std::smatch match_results;
+	std::regex prod_regex("^(.+)\\s[|]\\s(.+)$");
+
+	std::regex_match(strng, match_results, prod_regex);
+
+	for (std::smatch::iterator it = match_results.begin() + 1; it != match_results.end(); ++it)
+	{
+		retvec.push_back(*it);
+	}
+
+	return retvec;
+}
+
+
+bool predict(S_type_t& S, const int k, const std::string& nxt_elem, S_grammar_type_t& grammar)
+{
+	bool added = false;
+	std::string nxt_production = nxt_elem;
+	std::string grammar_prod = grammar[nxt_production];
+	auto splits = prod_split(grammar_prod);
+
+	for (auto& split : splits)
+	{
+		std::stringstream ss;
+		std::string split_nows = std::regex_replace(split, std::regex("\\s"), "");
+
+		ss << Earley::dot;
+		ss << split_nows;
+
+		std::string dSplit(ss.str());
+		Earley::S_set_type_t& current_set = S[k];
+		S_state_type_t set_element = std::make_tuple(nxt_production, dSplit, 0);
+
+		// if not found: insert the tuple(set_element)
+		if (current_set.find(set_element) == current_set.end())
+		{
+			current_set.insert(set_element);
+			added = true;
+		}
+	}
+
+	return added;
 }
 
 
 bool scan(S_type_t& S, const int k, S_state_type_t& state, const std::string& words)
 {
-	return true;
+	bool added = false;
+	return added;
 }
 
 
 bool complete(S_type_t& S, const int k, S_state_type_t& state)
 {
-	S.emplace_back(S_set_type_t{ std::make_tuple("ABC", "123", 0) });
-	return true;
+	bool added = false;
+	return added;
 }
 
 
@@ -115,11 +163,17 @@ bool earley_parse(const std::string& words, const S_grammar_type_t& grammar)
 {
 	std::string start_p = "S";
 	start_p += Earley::dot;
-	S_state_type_t expected = std::make_tuple("P",start_p,0);
+	S_state_type_t expected = std::make_tuple("P", start_p, 0);
 
 	S_type_t S = init(words.size());
+	{
+		std::string sp(1, Earley::dot);
+		sp += "S";
+		S[0].insert(std::make_tuple("P", sp, 0));
+	}
 	bool done = false;
-	for (unsigned int k = 0; k < words.size() + 1; ++k)
+
+	for (unsigned int k = 0; k < words.size(); ++k)
 	{
 		bool added = true;
 		if (done)
@@ -129,23 +183,26 @@ bool earley_parse(const std::string& words, const S_grammar_type_t& grammar)
 		{
 			added = false;
 
-			Earley::S_set_type_t c_set = S[k];
 			for (Earley::S_state_type_t state : S[k])
 			{
 				auto end_set = S[S.size() - 1];
 				if (end_set.find(expected) != end_set.end())
 				{
 					done = true;
+					cout << "done.\n";
 					break;
 				}
 
-				if (!is_finished(state))
+				bool finished = is_finished(state);
+				if (!finished)
 				{
 					auto nxt_elem = get_next_element(state);
 
 					if (is_nonterminal(nxt_elem))
 					{
-						added = predict(S, k, nxt_elem, state, words);
+						added = predict(S, k, nxt_elem, const_cast<S_grammar_type_t&>(grammar));
+						if (added)
+							cout << "Predicted and added to set\n";
 					}
 					else
 					{
@@ -164,57 +221,15 @@ bool earley_parse(const std::string& words, const S_grammar_type_t& grammar)
 }
 
 
-std::vector<std::string> split(const std::string& strng, const char delim)
-{
-	std::vector<std::string> retvec;
-	return retvec;
-}
-
-
-std::vector<std::string> load_grammar(const std::string& location)
-{
-	std::ifstream iff(location.c_str(), std::ios::in);
-	std::vector<std::string> mvec;
-
-	if (iff.is_open())
-	{
-		while (iff)
-		{
-			std::string holder;
-			std::getline(iff, holder);
-			mvec.push_back(holder);
-		}
-		mvec.pop_back();
-		mvec.shrink_to_fit();
-		iff.close();
-	}
-
-	return mvec;
-}
-
-
-S_grammar_type_t process_grammar(const std::vector<std::string>& gramm_raw)
-{
-	S_grammar_type_t gramm_struct;
-
-	for (auto& prod : gramm_raw)
-	{
-		std::smatch match_results;
-		std::regex prod_regex("^(.*)\\s->\\s(.*)$");
-		std::regex_match(prod, match_results, prod_regex);
-
-		std::string prod_name = match_results[1];
-		std::string prod_value = match_results[2];
-
-		gramm_struct.insert(std::make_pair(prod_name, prod_value));
-	}
-
-	return gramm_struct;
-}
-
-
 int main(int argc, char*argv[])
 {
+	std::vector<std::string> loaded_gramm = load_grammar(".\\grammars\\grammar.txt");
+	const std::string words("1+2+3");
+	auto grammar = process_grammar(loaded_gramm);
+
+	cout << std::boolalpha << earley_parse(words, grammar) << endl;
+
 	cout << "Hello_World\n";
+	
 	return 0;
 }
