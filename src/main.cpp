@@ -18,7 +18,7 @@ using Earley::S_grammar_type_t;
 S_type_t init(const size_t len_words)
 {
 	S_type_t S;
-	for (int i = 0; i < len_words; ++i)
+	for (unsigned int i = 0; i < len_words; ++i)
 	{
 		S_set_type_t s_set;
 		S.push_back(s_set);
@@ -28,15 +28,15 @@ S_type_t init(const size_t len_words)
 }
 
 
-bool is_nonterminal(const std::string& strng)
+inline bool is_nonterminal(const char ch)
 {
-	return Earley::nonterminals.find(strng) != Earley::nonterminals.end();
+	return Earley::nonterminals.find(ch) != Earley::nonterminals.end();
 }
 
 
-bool is_terminal(const std::string& strng)
+inline bool is_terminal(const char ch)
 {
-	return Earley::parts_of_speech.find(strng) != Earley::parts_of_speech.end();
+	return Earley::parts_of_speech.find(ch) != Earley::parts_of_speech.end();
 }
 
 
@@ -44,9 +44,9 @@ bool is_finished(const S_state_type_t& state)
 {
 	std::string prod = std::get<1>(state);
 
-	cout << "Prod " << prod << endl;
-	cout << "Prod Size " << prod.size() << endl;
-	cout << "DotPos " << prod.find(Earley::dot) << endl;
+	//cout << "Prod " << prod << endl;
+	//cout << "Prod Size " << prod.size() << endl;
+	//cout << "DotPos " << prod.find(Earley::dot) << endl;
 
 	return prod.find(Earley::dot) >= prod.size() - 1;
 }
@@ -72,7 +72,7 @@ std::string get_next_element(const S_state_type_t& state)
 	auto m_index = prod.find(Earley::dot);
 	std::string nxt(1, prod.at(m_index + 1));
 
-	if (is_nonterminal(nxt) || is_terminal(nxt))
+	if (is_nonterminal(nxt.at(0)) || is_terminal(nxt.at(0)))
 		return nxt; // return the thing(char) that comes just after the Earley::dot
 
 	return prod.substr(m_index + 1, prod.size() - m_index); // return the latter portion of the string (everything after the Earley::dot)
@@ -114,7 +114,7 @@ std::vector<std::string> prod_split(const std::string& strng)
 }
 
 
-bool predict(S_type_t& S, const int k, const std::string& nxt_elem, S_grammar_type_t& grammar)
+bool predict(S_type_t& S, const unsigned int k, const std::string& nxt_elem, S_grammar_type_t& grammar)
 {
 	bool added = false;
 	std::string nxt_production = nxt_elem;
@@ -145,14 +145,32 @@ bool predict(S_type_t& S, const int k, const std::string& nxt_elem, S_grammar_ty
 }
 
 
-bool scan(S_type_t& S, const int k, S_state_type_t& state, const std::string& words)
+bool scan(S_type_t& S, const unsigned int k, S_state_type_t& state, const std::string& words)
 {
 	bool added = false;
+
+	std::string nxt_elem_scanner = get_next_element(state);
+
+	if (k > words.size() - 1)
+		return added;
+
+	if (Earley::parts_of_speech.find(words.at(k)) != Earley::parts_of_speech.end())
+	{
+		std::string state_swapped = swap_around_dot(std::get<1>(state));
+
+		S_state_type_t new_state { std::get<0>(state), state_swapped, std::get<2>(state) };
+		if (S[k + 1].find(new_state) != S[k + 1].end())
+		{
+			S[k + 1].insert(new_state);
+			added = true;
+		}
+	}
+
 	return added;
 }
 
 
-bool complete(S_type_t& S, const int k, S_state_type_t& state)
+bool complete(S_type_t& S, const unsigned int k, S_state_type_t& state)
 {
 	bool added = false;
 	return added;
@@ -165,6 +183,7 @@ bool earley_parse(const std::string& words, const S_grammar_type_t& grammar)
 	start_p += Earley::dot;
 	S_state_type_t expected = std::make_tuple("P", start_p, 0);
 
+	// Create the overarching array of sets (parse table)
 	S_type_t S = init(words.size());
 	{
 		std::string sp(1, Earley::dot);
@@ -177,11 +196,20 @@ bool earley_parse(const std::string& words, const S_grammar_type_t& grammar)
 	{
 		bool added = true;
 		if (done)
+		{
+			cout << "outer done.\n";
 			break;
+		}
 
 		while (added)
 		{
 			added = false;
+
+			cout << "States:\n";
+			for (Earley::S_state_type_t state : S[k])
+			{
+				cout << "state " << Earley::state_string(state) << endl;
+			}
 
 			for (Earley::S_state_type_t state : S[k])
 			{
@@ -198,7 +226,9 @@ bool earley_parse(const std::string& words, const S_grammar_type_t& grammar)
 				{
 					auto nxt_elem = get_next_element(state);
 
-					if (is_nonterminal(nxt_elem))
+					cout << "nxt_elem " << nxt_elem << endl;
+
+					if (is_nonterminal(nxt_elem.at(0)))
 					{
 						added = predict(S, k, nxt_elem, const_cast<S_grammar_type_t&>(grammar));
 						if (added)
@@ -207,12 +237,23 @@ bool earley_parse(const std::string& words, const S_grammar_type_t& grammar)
 					else
 					{
 						added = scan(S, k, state, words);
+						if (added)
+							cout << "Scanned and added to set\n";
 					}
 				}
 				else
 				{
 					added = complete(S, k, state);
 				}
+			}
+
+			if (!added)
+				cout << k << " NO ADD: BREAKING\n";
+
+			cout << "States:\n";
+			for (Earley::S_state_type_t state : S[k])
+			{
+				cout << "state " << Earley::state_string(state) << endl;
 			}
 		}
 	}

@@ -3,6 +3,7 @@
 
 #include <set>
 #include <string>
+#include <sstream>
 #include <map>
 #include <tuple>
 #include <vector>
@@ -23,6 +24,13 @@ namespace Earley
 
 	const char dot = '`';
 	const std::string prod_split = " | ";
-	const std::set<std::string> nonterminals{ "P", "S", "M", "T" };
-	const std::set<std::string> parts_of_speech{ "+", "*", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+	const std::set<char> nonterminals{ 'P', 'S', 'M', 'T' };
+	const std::set<char> parts_of_speech{ '+', '*', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+
+	inline std::string state_string(const S_state_type_t& m_state)
+	{
+		std::stringstream ss;
+		ss << ::std::get<0>(m_state) << "," << ::std::get<1>(m_state) << "," << ::std::get<2>(m_state);
+		return ss.str();
+	}
 }

@@ -41,12 +41,18 @@ Earley::S_grammar_type_t process_grammar(const std::vector<std::string>& gramm_r
 	{
 		std::smatch match_results;
 		std::regex prod_regex("^(.*)\\s->\\s(.*)$");
-		std::regex_match(prod, match_results, prod_regex);
+		if (std::regex_match(prod, match_results, prod_regex))
+		{
+			std::string prod_name = match_results[1];
+			std::string prod_value = match_results[2];
 
-		std::string prod_name = match_results[1];
-		std::string prod_value = match_results[2];
+			// Check to see if the production maps to a terminal symbol(s)
+			std::regex number_regex("(\\d\\s[|]\\s)+\\d");
+			if (std::regex_match(prod_value, number_regex))
+				prod_value = "number";
 
-		gramm_struct.insert(std::make_pair(prod_name, prod_value));
+			gramm_struct.insert(std::make_pair(prod_name, prod_value));
+		}
 	}
 
 	return gramm_struct;
