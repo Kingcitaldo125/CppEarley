@@ -59,8 +59,16 @@ std::string swap_around_dot(const std::string& strng)
 		return strng;
 
 	std::string n_str(strng);
-	auto dot_idx = strng.find(Earley::dot);
-	std::swap(n_str[dot_idx], n_str[dot_idx + 1]);
+	if (Earley::nonterminals.find(strng.at(0)) != Earley::nonterminals.end())
+	{
+		auto dot_idx = strng.find(Earley::dot);
+		std::swap(n_str[dot_idx], n_str[dot_idx + 1]);
+		return n_str;
+	}
+
+	auto indx = n_str.find(Earley::dot);
+	n_str.erase(indx, indx+1);
+	n_str += Earley::dot;
 
 	return n_str;
 }
@@ -90,7 +98,7 @@ std::vector<std::string> split(const std::string& strng, const char delim)
 		std::getline(ss, holder, delim);
 		retvec.push_back(holder);
 	}
-	retvec.pop_back(); // take out the final, extra, element
+	retvec.pop_back(); // take out the final, extra, element (not needed)
 
 	return retvec;
 }
@@ -105,9 +113,18 @@ std::vector<std::string> prod_split(const std::string& strng)
 
 	std::regex_match(strng, match_results, prod_regex);
 
-	for (std::smatch::iterator it = match_results.begin() + 1; it != match_results.end(); ++it)
+	if (match_results.size() > 0)
 	{
-		retvec.push_back(*it);
+		for (std::smatch::iterator it = match_results.begin() + 1; it != match_results.end(); ++it)
+		{
+			retvec.push_back(*it);
+		}
+	}
+	else
+	{
+		// handle the case where the production does not contain one or more pipes ( | )
+		// just push back the single value
+		retvec.push_back(strng);
 	}
 
 	return retvec;
@@ -119,9 +136,9 @@ bool predict(S_type_t& S, const unsigned int k, const std::string& nxt_elem, S_g
 	bool added = false;
 	std::string nxt_production = nxt_elem;
 	std::string grammar_prod = grammar[nxt_production];
-	auto splits = prod_split(grammar_prod);
+	auto prod_splits = prod_split(grammar_prod);
 
-	for (auto& split : splits)
+	for (auto& split : prod_splits)
 	{
 		std::stringstream ss;
 		std::string split_nows = std::regex_replace(split, std::regex("\\s"), "");
@@ -134,9 +151,9 @@ bool predict(S_type_t& S, const unsigned int k, const std::string& nxt_elem, S_g
 		S_state_type_t set_element = std::make_tuple(nxt_production, dSplit, 0);
 
 		// if not found: insert the tuple(set_element)
-		if (current_set.find(set_element) == current_set.end())
+		if (std::find(current_set.begin(), current_set.end(), set_element) == current_set.end())
 		{
-			current_set.insert(set_element);
+			current_set.push_back(set_element);
 			added = true;
 		}
 	}
@@ -159,9 +176,11 @@ bool scan(S_type_t& S, const unsigned int k, S_state_type_t& state, const std::s
 		std::string state_swapped = swap_around_dot(std::get<1>(state));
 
 		S_state_type_t new_state { std::get<0>(state), state_swapped, std::get<2>(state) };
-		if (S[k + 1].find(new_state) != S[k + 1].end())
+		auto& nxt_set = S[k + 1];
+		// If the element (new_state) is in the language, described by the grammar, then add that completed terminal symbol to S[k + 1]
+		if (std::find(nxt_set.begin(), nxt_set.end(), new_state) == nxt_set.end())
 		{
-			S[k + 1].insert(new_state);
+			nxt_set.push_back(new_state);
 			added = true;
 		}
 	}
@@ -188,7 +207,7 @@ bool earley_parse(const std::string& words, const S_grammar_type_t& grammar)
 	{
 		std::string sp(1, Earley::dot);
 		sp += "S";
-		S[0].insert(std::make_tuple("P", sp, 0));
+		S[0].push_back(std::make_tuple("P", sp, 0));
 	}
 	bool done = false;
 
@@ -205,16 +224,19 @@ bool earley_parse(const std::string& words, const S_grammar_type_t& grammar)
 		{
 			added = false;
 
-			cout << "States:\n";
-			for (Earley::S_state_type_t state : S[k])
+			/*
+			// TBD: Remove debug code
+			cout << "'" << S[0].size() << "' States:\n";
+			for (Earley::S_state_type_t state : S[0])
 			{
 				cout << "state " << Earley::state_string(state) << endl;
 			}
+			*/
 
 			for (Earley::S_state_type_t state : S[k])
 			{
 				auto end_set = S[S.size() - 1];
-				if (end_set.find(expected) != end_set.end())
+				if (std::find(end_set.begin(), end_set.end(), expected) != end_set.end())
 				{
 					done = true;
 					cout << "done.\n";
@@ -226,6 +248,7 @@ bool earley_parse(const std::string& words, const S_grammar_type_t& grammar)
 				{
 					auto nxt_elem = get_next_element(state);
 
+					// TBD: Remove debug code
 					cout << "nxt_elem " << nxt_elem << endl;
 
 					if (is_nonterminal(nxt_elem.at(0)))
@@ -245,15 +268,6 @@ bool earley_parse(const std::string& words, const S_grammar_type_t& grammar)
 				{
 					added = complete(S, k, state);
 				}
-			}
-
-			if (!added)
-				cout << k << " NO ADD: BREAKING\n";
-
-			cout << "States:\n";
-			for (Earley::S_state_type_t state : S[k])
-			{
-				cout << "state " << Earley::state_string(state) << endl;
 			}
 		}
 	}
