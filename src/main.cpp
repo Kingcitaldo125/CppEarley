@@ -276,8 +276,9 @@ bool earley_parse(const std::string& words, const S_grammar_type_t& grammar)
 }
 
 
-int main(int argc, char*argv[])
+int main(int argc, char* argv[])
 {
+	// TBD: Pass in the path to the grammar via 'argv'
 	std::vector<std::string> loaded_gramm = load_grammar(".\\grammars\\grammar.txt");
 	const std::string words("1+2+3");
 	auto grammar = process_grammar(loaded_gramm);
