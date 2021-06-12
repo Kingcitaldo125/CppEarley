@@ -106,25 +106,22 @@ std::vector<std::string> split(const std::string& strng, const char delim)
 
 std::vector<std::string> prod_split(const std::string& strng)
 {
+	std::smatch sm;
+	std::regex rgx("(\\b([^|])+\\b([|])*)");
+	std::string m_string(strng);
 	std::vector<std::string> retvec;
 
-	std::smatch match_results;
-	std::regex prod_regex("^(.+)\\s[|]\\s(.+)$");
-
-	std::regex_match(strng, match_results, prod_regex);
-
-	if (match_results.size() > 0)
+	bool got_match = true;
+	// Parse through the string, stripping the matched terminal/non-terminal from the front
+	// this allows for continuous matching against one or more terminals/non-terminals between the pipes/spaces
+	while (got_match)
 	{
-		for (std::smatch::iterator it = match_results.begin() + 1; it != match_results.end(); ++it)
+		got_match = std::regex_search(m_string, sm, rgx);
+		if (got_match)
 		{
-			retvec.push_back(*it);
+			retvec.push_back(sm.str());
+			m_string = sm.suffix();
 		}
-	}
-	else
-	{
-		// handle the case where the production does not contain one or more pipes ( | )
-		// just push back the single value
-		retvec.push_back(strng);
 	}
 
 	return retvec;
