@@ -6,6 +6,7 @@
 #include <sstream>
 #include <map>
 #include <tuple>
+#include <list>
 #include <vector>
 
 
@@ -18,7 +19,7 @@ namespace Earley
 	3. The state number where that particular cell/item originated from (Origin)
 	*/
 	using S_state_type_t = std::tuple<std::string, std::string, int>;
-	using S_set_type_t = std::vector<S_state_type_t>;
+	using S_set_type_t = std::list<S_state_type_t>;
 	using S_type_t = std::vector<S_set_type_t>;
 	using S_grammar_type_t = std::map<std::string, std::string>;
 
