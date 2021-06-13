@@ -59,13 +59,22 @@ std::string swap_around_dot(const std::string& strng)
 		return strng;
 
 	std::string n_str(strng);
-	if (Earley::nonterminals.find(strng.at(0)) != Earley::nonterminals.end())
+	auto dot_idx = strng.find(Earley::dot);
+	auto next_item = strng.at(dot_idx + 1);
+
+	//Swap around a/the lexeme
+	if (Earley::nonterminals.find(next_item) != Earley::nonterminals.end())
 	{
-		auto dot_idx = strng.find(Earley::dot);
+		std::swap(n_str[dot_idx], n_str[dot_idx + 1]);
+		return n_str;
+	}
+	else if (Earley::parts_of_speech.find(next_item) != Earley::parts_of_speech.end())
+	{
 		std::swap(n_str[dot_idx], n_str[dot_idx + 1]);
 		return n_str;
 	}
 
+	// Swap around a/the token (take the dot, remove it from the front and append to the end)
 	auto indx = n_str.find(Earley::dot);
 	n_str.erase(indx, indx+1);
 	n_str += Earley::dot;
@@ -145,11 +154,13 @@ bool predict(S_type_t& S, const unsigned int k, const std::string& nxt_elem, S_g
 
 		std::string dSplit(ss.str());
 		Earley::S_set_type_t& current_set = S[k];
-		S_state_type_t set_element = std::make_tuple(nxt_production, dSplit, 0);
+		S_state_type_t set_element = std::make_tuple(nxt_production, dSplit, k);
 
 		// if not found: insert the tuple(set_element)
 		if (std::find(current_set.begin(), current_set.end(), set_element) == current_set.end())
 		{
+			auto sstr = Earley::state_string(set_element);
+			cout << "Predictor push back " << sstr << endl;
 			current_set.push_back(set_element);
 			added = true;
 		}
@@ -189,6 +200,35 @@ bool scan(S_type_t& S, const unsigned int k, S_state_type_t& state, const std::s
 bool complete(S_type_t& S, const unsigned int k, S_state_type_t& state)
 {
 	bool added = false;
+	int state_origin = std::get<2>(state);
+
+	for (Earley::S_state_type_t& t_state : S[state_origin])
+	{
+		std::string t_state_sym = std::get<1>(t_state);
+		std::string t_state_temp(t_state_sym);
+
+		auto fnd = t_state_temp.find(Earley::dot);
+		t_state_temp.erase(fnd, fnd + 1);
+
+		if (Earley::nonterminals.find(t_state_temp.at(0)) != Earley::nonterminals.end())
+		{
+			std::string swapped_prod = swap_around_dot(t_state_sym);
+
+			// assemble t_state with the dot after the nonterminal (completed the nonterminal)
+			// then add the new, completed, t_state to S[k]
+			S_state_type_t n_tuple = std::make_tuple(std::get<0>(t_state), swapped_prod, std::get<2>(t_state));
+			auto sk = S[k];
+
+			// If we didn't already add the completed state to the current state, do so now; otherwise, ignore and continue on
+			if (std::find(sk.begin(), sk.end(), n_tuple) == sk.end())
+			{
+				S[k].push_back(n_tuple);
+				added = true;
+			}
+		}
+	}
+
+
 	return added;
 }
 
