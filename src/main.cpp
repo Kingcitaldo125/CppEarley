@@ -40,7 +40,7 @@ inline bool is_terminal(const char ch)
 }
 
 
-bool is_finished(const S_state_type_t& state)
+inline bool is_finished(const S_state_type_t& state)
 {
 	std::string prod = std::get<1>(state);
 
