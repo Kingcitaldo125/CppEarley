@@ -332,8 +332,15 @@ bool earley_parse(const std::string& words, const S_grammar_type_t& grammar)
 
 int main(int argc, char* argv[])
 {
+	std::string grammar_location(".\\grammars\\grammar.txt");
+	// ovveride for the window grammar path
+	if (argc > 1)
+	{
+		grammar_location = argv[1];
+		cout << grammar_location << endl;
+	}
 	// TBD: Pass in the path to the grammar via 'argv'
-	std::vector<std::string> loaded_gramm = load_grammar(".\\grammars\\grammar.txt");
+	std::vector<std::string> loaded_gramm = load_grammar(grammar_location);
 	//const std::string words("1");
 	//const std::string words("1+");
 	const std::string words("1+2");
