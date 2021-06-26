@@ -15,7 +15,7 @@ using Earley::S_type_t;
 using Earley::S_grammar_type_t;
 
 
-S_type_t init(const size_t len_words)
+inline S_type_t init(const size_t len_words)
 {
 	S_type_t S;
 	for (unsigned int i = 0; i < len_words + 1; ++i)
@@ -43,10 +43,6 @@ inline bool is_terminal(const char ch)
 inline bool is_finished(const S_state_type_t& state)
 {
 	std::string prod = std::get<1>(state);
-
-	//cout << "Prod " << prod << endl;
-	//cout << "Prod Size " << prod.size() << endl;
-	//cout << "DotPos " << prod.find(Earley::dot) << endl;
 
 	return prod.find(Earley::dot) >= prod.size() - 1;
 }
@@ -160,7 +156,7 @@ bool predict(S_type_t& S, const unsigned int k, const std::string& nxt_elem, S_g
 		if (std::find(current_set.begin(), current_set.end(), set_element) == current_set.end())
 		{
 			// TBD: Remove debug print code
-			cout << "Predictor adding " << Earley::state_string(set_element) << endl;
+			//cout << "Predictor adding " << Earley::state_string(set_element)  << " to Set index '" << k << "'" << endl;
 			current_set.push_back(set_element);
 			added = true;
 		}
@@ -189,7 +185,7 @@ bool scan(S_type_t& S, const unsigned int k, S_state_type_t& state, const std::s
 		if (std::find(nxt_set.begin(), nxt_set.end(), new_state) == nxt_set.end())
 		{
 			// TBD: Remove debug print code
-			cout << "Scanner adding " << Earley::state_string(new_state) << endl;
+			//cout << "Scanner adding " << Earley::state_string(new_state) << " to Set index '" << k+1 << "'" << endl;
 			nxt_set.push_back(new_state);
 			added = true;
 		}
@@ -225,7 +221,7 @@ bool complete(S_type_t& S, const unsigned int k, S_state_type_t& state)
 			if (std::find(sk.begin(), sk.end(), n_tuple) == sk.end())
 			{
 				// TBD: Remove debug print code
-				cout << "Completor adding " << Earley::state_string(n_tuple) << endl;
+				//cout << "Completor adding " << Earley::state_string(n_tuple) << " to Set index '" << k << "'" << endl;
 				S[k].push_back(n_tuple);
 				added = true;
 			}
@@ -262,8 +258,9 @@ bool earley_parse(const std::string& words, const S_grammar_type_t& grammar)
 		S[0].push_back(std::make_tuple("P", sp, 0));
 	}
 	bool done = false;
+	bool complete_parse = false;
 
-	for (unsigned int k = 0; k < words.size(); ++k)
+	for (unsigned int k = 0; k < words.size() + 1; ++k)
 	{
 		bool added = true;
 		if (done)
@@ -276,24 +273,14 @@ bool earley_parse(const std::string& words, const S_grammar_type_t& grammar)
 		{
 			added = false;
 
-			/*
-			// TBD: Remove debug print code
-			cout << "'" << S[0].size() << "' States:\n";
-			for (Earley::S_state_type_t state : S[0])
-			{
-				cout << "state " << Earley::state_string(state) << endl;
-			}
-			*/
-
 			for (Earley::S_state_type_t state : S[k])
 			{
-				// TBD: Remove debug print code
-				{
-					cout << Earley::state_string(state) << endl;
-				}
-
 				if (check_end_set(S, expected))
+				{
+					done = true;
+					complete_parse = true;
 					break;
+				}
 
 				bool finished = is_finished(state);
 				if (!finished)
@@ -307,15 +294,19 @@ bool earley_parse(const std::string& words, const S_grammar_type_t& grammar)
 					{
 						added = predict(S, k, nxt_elem, const_cast<S_grammar_type_t&>(grammar));
 						// TBD: Remove debug print code
+						/*
 						if (added)
 							cout << "Predicted and added to set\n";
+						*/
 					}
 					else
 					{
 						added = scan(S, k, state, words);
 						// TBD: Remove debug print code
+						/*
 						if (added)
 							cout << "Scanned and added to set\n";
+						*/
 					}
 				}
 				else
@@ -326,14 +317,14 @@ bool earley_parse(const std::string& words, const S_grammar_type_t& grammar)
 		}
 	}
 
-	return true;
+	return complete_parse;
 }
 
 
 int main(int argc, char* argv[])
 {
 	std::string grammar_location(".\\grammars\\grammar.txt");
-	// ovveride for the window grammar path
+	// override for the window grammar path
 	if (argc > 1)
 	{
 		grammar_location = argv[1];
@@ -341,12 +332,14 @@ int main(int argc, char* argv[])
 	}
 	// TBD: Pass in the path to the grammar via 'argv'
 	std::vector<std::string> loaded_gramm = load_grammar(grammar_location);
-	//const std::string words("1");
-	//const std::string words("1+");
-	const std::string words("1+2");
 	auto grammar = process_grammar(loaded_gramm);
 
-	cout << std::boolalpha << earley_parse(words, grammar) << endl;
+	const std::array<std::string, 4> inputs{ "1","1+","1+2","2+3*4" };
+
+	for (auto& inp : inputs)
+	{
+		cout << inp << "=" << std::boolalpha << earley_parse(inp, grammar) << endl;
+	}
 
 	cout << "Hello_World\n";
 	
