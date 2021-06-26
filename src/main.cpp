@@ -338,7 +338,7 @@ int main(int argc, char* argv[])
 
 	for (auto& inp : inputs)
 	{
-		cout << inp << "=" << std::boolalpha << earley_parse(inp, grammar) << endl;
+		cout << "Input <" << inp << "> = " << std::boolalpha << earley_parse(inp, grammar) << endl;
 	}
 
 	cout << "Hello_World\n";
