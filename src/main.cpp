@@ -332,6 +332,13 @@ int main(int argc, char* argv[])
 	}
 	// TBD: Pass in the path to the grammar via 'argv'
 	std::vector<std::string> loaded_gramm = load_grammar(grammar_location);
+
+	if (loaded_gramm.size() == 0)
+	{
+		cout << "Could not open grammar file '" << grammar_location << "' -- exiting\n";
+		return -1;
+	}
+
 	auto grammar = process_grammar(loaded_gramm);
 
 	const std::array<std::string, 4> inputs{ "1","1+","1+2","2+3*4" };
@@ -340,8 +347,6 @@ int main(int argc, char* argv[])
 	{
 		cout << "Input <" << inp << "> = " << std::boolalpha << earley_parse(inp, grammar) << endl;
 	}
-
-	cout << "Hello_World\n";
 	
 	return 0;
 }
