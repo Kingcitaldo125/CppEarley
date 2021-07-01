@@ -6,28 +6,17 @@ set(CMAKE_CXX_STANDARD 11)
 
 find_package(GTest REQUIRED)
 
-#[[
+set(PROJECT_ROOT_DIRECTORY "${CMAKE_SOURCE_DIR}/../")
 
-# Possible override for current test solution - requires hitting the internet each time ?
+message("PROJECT_ROOT_DIRECTORY: ${PROJECT_ROOT_DIRECTORY}")
 
-include(FetchContent)
+find_library(CPP_EARLEY cpp_earley
+    HINTS ${PROJECT_ROOT_DIRECTORY}
+    PATH_SUFFIXES /lib /build/src)
+    
+add_executable(app-test test.cpp)
 
-FetchContent_Declare(
-  googletest
-  # Specify the commit you depend on and update it regularly.
-  URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
-)
+target_link_libraries(app-test ${CPP_EARLEY} ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
 
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-]]
-
-# Now simply link against gtest or gtest_main as needed. Eg
-add_executable(app-test main.cpp)
-
-#target_link_libraries(app-test gtest_main)
-target_link_libraries(app-test ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
-
-add_test(NAME example_test COMMAND app-test)
+target_include_directories(app-test PUBLIC ${PROJECT_ROOT_DIRECTORY}/include)
 
