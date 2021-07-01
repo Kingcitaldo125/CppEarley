@@ -1,6 +1,9 @@
 # Build Directories
 *build/
 
+# Libs
+*lib/
+
 # Caches
 *cache*/
 
