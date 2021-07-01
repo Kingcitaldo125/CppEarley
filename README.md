@@ -20,7 +20,7 @@ make
 To run using the basic Earley grammar found in the Wikipedia article:
 
 ``` bash
-./cpp-earley ../grammars/grammar.txt
+./main ../grammars/grammar.txt
 ```
 
 The output from pointing the main target to the basic Earley grammar should be similar to the following:
@@ -40,3 +40,4 @@ Coming Soon - Windows is still in `Dev`.
 ## License
 
 See the [LICENSE](https://github.com/Kingcitaldo125/CppEarley/blob/main/LICENSE) file for details
+
