@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 		cout << grammar_location << endl;
 	}
 	// TBD: Pass in the path to the grammar via 'argv'
-	std::vector<std::string> loaded_gramm = load_grammar(grammar_location);
+	std::vector<std::string> loaded_gramm = Earley::load_grammar(grammar_location);
 
 	if (loaded_gramm.size() == 0)
 	{
@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	auto grammar = process_grammar(loaded_gramm);
+	auto grammar = Earley::process_grammar(loaded_gramm);
 
 	const std::array<std::string, 4> inputs{ "1","1+","1+2","2+3*4" };
 

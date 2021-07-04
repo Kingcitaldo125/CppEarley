@@ -9,7 +9,7 @@ using std::cout;
 using std::endl;
 
 
-std::vector<std::string> load_grammar(const std::string& location)
+std::vector<std::string> Earley::load_grammar(const std::string& location)
 {
 	std::ifstream iff(location.c_str(), std::ios::in);
 	std::vector<std::string> mvec;
@@ -33,7 +33,7 @@ std::vector<std::string> load_grammar(const std::string& location)
 }
 
 
-Earley::S_grammar_type_t process_grammar(const std::vector<std::string>& gramm_raw)
+Earley::S_grammar_type_t Earley::process_grammar(const std::vector<std::string>& gramm_raw)
 {
 	Earley::S_grammar_type_t gramm_struct;
 
@@ -57,3 +57,4 @@ Earley::S_grammar_type_t process_grammar(const std::vector<std::string>& gramm_r
 
 	return gramm_struct;
 }
+
