@@ -25,7 +25,6 @@ namespace Earley
 	using S_grammar_type_t = std::map<std::string, std::string>;
 
 	const char dot = '`';
-	const std::string prod_split = " | ";
 	const std::set<char> nonterminals{ 'P', 'S', 'M', 'T' };
 	const std::set<char> parts_of_speech{ '+', '*', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 
@@ -36,3 +35,4 @@ namespace Earley
 		return ss.str();
 	}
 }
+

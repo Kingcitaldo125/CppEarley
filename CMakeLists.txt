@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(PROJECT_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
-option(COPY_LIBS ON)
+option(COPY_LIBS "Copy the static/shared libs to a 'lib' folder in the 'CMAKE_SOURCE_DIR'" ON)
 
 if(COPY_LIBS)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_DIRECTORY}/lib)
@@ -15,6 +15,7 @@ endif()
 
 include_directories(include)
 
+add_subdirectory(include)
 add_subdirectory(src)
 
 add_executable(main src/main.cpp)
