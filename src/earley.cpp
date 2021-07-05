@@ -247,6 +247,10 @@ bool Earley::check_end_set(const S_type_t& S, const S_state_type_t& expected)
 
 bool Earley::earley_parse(const std::string& words, const S_grammar_type_t& grammar)
 {
+	// TBD: Add full support for empty string in grammar/earley
+	if (words.size() == 0)
+		return true;
+
 	std::string start_p = "S";
 	start_p += Earley::dot;
 	S_state_type_t expected = std::make_tuple("P", start_p, 0);
