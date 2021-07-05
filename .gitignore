@@ -9,6 +9,8 @@
 
 # Visual Studio stuff
 *.vs/
+*.sln
+*.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
 
