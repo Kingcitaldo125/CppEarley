@@ -173,6 +173,27 @@ bool Earley::scan(S_type_t& S, const unsigned int k, S_state_type_t& state, cons
 
 	std::string nxt_elem_scanner = get_next_element(state);
 
+	if (k >= words.size())
+		return added;
+
+	auto words_k = words.at(k);
+
+	{
+		// Process regex information against the token/word (see if it's a number)
+		std::string rgx_input(1, words_k);
+		std::regex rgx("[0-9]");
+		std::smatch sm;
+		auto res = std::regex_match(rgx_input, sm, rgx);
+
+		if (nxt_elem_scanner == "number" && !res)
+		{
+			cout << "Not going to add non-number to forward set:";
+			cout << "Terminal symbol is not a number?";
+			cout << endl;
+			return added;
+		}
+	}
+
 	if (k > words.size() - 1)
 		return added;
 

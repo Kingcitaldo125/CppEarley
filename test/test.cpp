@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <array>
+#include <iostream>
 
 #include "grammar.cpp"
 #include "earley.cpp"
@@ -11,15 +12,9 @@ static std::vector<std::string> loaded_gramm;
 static Earley::S_grammar_type_t test_grammar;
 
 
-TEST(BasicTest, MyTestName1)
-{
-  EXPECT_EQ(0,0);
-}
-
-
 TEST(earley, Input1Empty)
 {
-  std::string input_1("");
+  const std::string input_1("");
 
   auto parse_res = Earley::earley_parse(input_1, test_grammar);
 
@@ -29,13 +24,27 @@ TEST(earley, Input1Empty)
 
 TEST(earley, AddPass)
 {
-  std::array<std::string, 6> inputs {"0+1","1+0","1+1","9+0","5+9","0+9"};
+  const std::array<std::string, 6> inputs {"0+1","1+0","1+1","9+0","5+9","0+9"};
   
   for(auto& inp : inputs)
   {
     auto parse_res = Earley::earley_parse(inp, test_grammar);
 
     EXPECT_EQ(parse_res, true);
+  }
+}
+
+TEST(earley, AddFail)
+{
+  const std::array<std::string, 5> inputs {"0+","+0","1+","+1","+"};
+  
+  for(auto& inp : inputs)
+  {
+    auto parse_res = Earley::earley_parse(inp, test_grammar);
+
+    std::cout << std::boolalpha << "parse_res (" << parse_res << ")" << std::endl;
+
+    EXPECT_EQ(parse_res, false);
   }
 }
 
