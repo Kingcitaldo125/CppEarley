@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
 
+option(debug "Print out the locations of different things relative to source directory" OFF)
+
 enable_testing()
 
 find_package(GTest REQUIRED)
@@ -17,13 +19,15 @@ set(PROJECT_ROOT_DIRECTORY "${CMAKE_SOURCE_DIR}/../")
 set(TEST_DIRECTORY "${CMAKE_SOURCE_DIR}")
 set(TEST_GRAMMAR_DIRECTORY "${TEST_DIRECTORY}/${GRAMMAR_DIRECTORY}/")
 
-message("PROJECT_ROOT_DIRECTORY: ${PROJECT_ROOT_DIRECTORY}")
-message("TEST_DIRECTORY: ${TEST_DIRECTORY}")
-message("TEST_GRAMMAR_DIRECTORY: ${TEST_GRAMMAR_DIRECTORY}")
+if(${debug})
+  message("PROJECT_ROOT_DIRECTORY: ${PROJECT_ROOT_DIRECTORY}")
+  message("TEST_DIRECTORY: ${TEST_DIRECTORY}")
+  message("TEST_GRAMMAR_DIRECTORY: ${TEST_GRAMMAR_DIRECTORY}")
+endif()
 
 find_library(CPP_EARLEY cpp_earley
     HINTS ${PROJECT_ROOT_DIRECTORY}
-    PATH_SUFFIXES /lib /build/src)
+    PATH_SUFFIXES /bin /bin/lib /build /build/lib)
     
 add_executable(app-test test.cpp)
 

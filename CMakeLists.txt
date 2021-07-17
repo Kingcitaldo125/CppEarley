@@ -12,8 +12,8 @@ set(PROJECT_DIRECTORY "${CMAKE_SOURCE_DIR}")
 option(COPY_LIBS "Copy the static/shared libs to a 'lib' folder in the 'CMAKE_SOURCE_DIR'" ON)
 
 if(COPY_LIBS)
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_DIRECTORY}/lib)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_DIRECTORY}/lib)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 endif()
 
 include_directories(include)
