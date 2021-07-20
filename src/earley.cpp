@@ -156,8 +156,6 @@ bool Earley::predict(S_type_t& S, const unsigned int k, const std::string& nxt_e
 		// if not found: insert the tuple(set_element)
 		if (std::find(current_set.begin(), current_set.end(), set_element) == current_set.end())
 		{
-			// TBD: Remove debug print code
-			//cout << "Predictor adding " << Earley::state_string(set_element)  << " to Set index '" << k << "'" << endl;
 			current_set.push_back(set_element);
 			added = true;
 		}
@@ -206,8 +204,6 @@ bool Earley::scan(S_type_t& S, const unsigned int k, S_state_type_t& state, cons
 		// If the element (new_state) is in the language, described by the grammar, then add that completed terminal symbol to S[k + 1]
 		if (std::find(nxt_set.begin(), nxt_set.end(), new_state) == nxt_set.end())
 		{
-			// TBD: Remove debug print code
-			//cout << "Scanner adding " << Earley::state_string(new_state) << " to Set index '" << k+1 << "'" << endl;
 			nxt_set.push_back(new_state);
 			added = true;
 		}
@@ -242,8 +238,6 @@ bool Earley::complete(S_type_t& S, const unsigned int k, S_state_type_t& state)
 			// If we didn't already add the completed state to the current state, do so now; otherwise, ignore and continue on
 			if (std::find(sk.begin(), sk.end(), n_tuple) == sk.end())
 			{
-				// TBD: Remove debug print code
-				//cout << "Completor adding " << Earley::state_string(n_tuple) << " to Set index '" << k << "'" << endl;
 				S[k].push_back(n_tuple);
 				added = true;
 			}
@@ -290,10 +284,7 @@ bool Earley::earley_parse(const std::string& words, const S_grammar_type_t& gram
 	{
 		bool added = true;
 		if (done)
-		{
-			cout << "outer done.\n";
 			break;
-		}
 
 		while (added)
 		{
@@ -313,26 +304,13 @@ bool Earley::earley_parse(const std::string& words, const S_grammar_type_t& gram
 				{
 					auto nxt_elem = get_next_element(state);
 
-					// TBD: Remove debug print code
-					//cout << "nxt_elem " << nxt_elem << endl;
-
 					if (is_nonterminal(nxt_elem.at(0)))
 					{
 						added = predict(S, k, nxt_elem, const_cast<S_grammar_type_t&>(grammar));
-						// TBD: Remove debug print code
-						/*
-						if (added)
-							cout << "Predicted and added to set\n";
-						*/
 					}
 					else
 					{
 						added = scan(S, k, state, words);
-						// TBD: Remove debug print code
-						/*
-						if (added)
-							cout << "Scanned and added to set\n";
-						*/
 					}
 				}
 				else
@@ -345,4 +323,3 @@ bool Earley::earley_parse(const std::string& words, const S_grammar_type_t& gram
 
 	return complete_parse;
 }
-

@@ -1,6 +1,9 @@
 # Build Directories
 *build/
 
+# Bin Directories
+*bin/
+
 # Libs
 *lib/
 
