@@ -102,6 +102,33 @@ TEST(earley, BadOpFail2)
   }
 }
 
+TEST(earley, AllNumbersPass1)
+{
+  const std::array<std::string, 2> inputs {"0+1+2+3+4+5+6+7+8+9","0*1*2*3*4*5*6*7*8*9"};
+  
+  for(auto& inp : inputs)
+  {
+    auto parse_res = Earley::earley_parse(inp, test_grammar);
+
+    std::cout << std::boolalpha << "parse_res (" << parse_res << ")" << std::endl;
+
+    EXPECT_EQ(parse_res, true);
+  }
+}
+
+TEST(earley, AllNumbersPass2)
+{
+  const std::array<std::string, 2> inputs {"0+1*2+3*4+5*6+7*8+9","0*1+2*3+4*5+6*7+8*9"};
+  
+  for(auto& inp : inputs)
+  {
+    auto parse_res = Earley::earley_parse(inp, test_grammar);
+
+    std::cout << std::boolalpha << "parse_res (" << parse_res << ")" << std::endl;
+
+    EXPECT_EQ(parse_res, true);
+  }
+}
 
 int main(int argc, char** argv)
 {
