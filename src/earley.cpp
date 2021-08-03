@@ -89,7 +89,8 @@ std::string Earley::get_next_element(const S_state_type_t& state)
 	if (is_nonterminal(nxt.at(0)) || is_terminal(nxt.at(0)))
 		return nxt; // return the thing(char) that comes just after the Earley::dot
 
-	return prod.substr(m_index + 1, prod.size() - m_index); // return the latter portion of the string (everything after the Earley::dot)
+	// return the latter portion of the string (everything after the Earley::dot)
+	return prod.substr(m_index + 1, prod.size() - m_index);
 }
 
 
@@ -201,7 +202,8 @@ bool Earley::scan(S_type_t& S, const unsigned int k, S_state_type_t& state, cons
 
 		S_state_type_t new_state = std::make_tuple(std::get<0>(state), state_swapped, std::get<2>(state));
 		auto& nxt_set = S[k + 1];
-		// If the element (new_state) is in the language, described by the grammar, then add that completed terminal symbol to S[k + 1]
+		// If the element (new_state) is in the language, described by the grammar,
+		// then add that completed terminal symbol to S[k + 1]
 		if (std::find(nxt_set.begin(), nxt_set.end(), new_state) == nxt_set.end())
 		{
 			nxt_set.push_back(new_state);
@@ -235,7 +237,8 @@ bool Earley::complete(S_type_t& S, const unsigned int k, S_state_type_t& state)
 			S_state_type_t n_tuple = std::make_tuple(std::get<0>(t_state), swapped_prod, std::get<2>(t_state));
 			auto sk = S[k];
 
-			// If we didn't already add the completed state to the current state, do so now; otherwise, ignore and continue on
+			// If we didn't already add the completed state to the current state, do so now;
+			// otherwise,ignore and continue on
 			if (std::find(sk.begin(), sk.end(), n_tuple) == sk.end())
 			{
 				S[k].push_back(n_tuple);

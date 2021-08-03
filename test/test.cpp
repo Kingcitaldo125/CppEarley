@@ -48,6 +48,60 @@ TEST(earley, AddFail)
   }
 }
 
+TEST(earley, MulPass)
+{
+  const std::array<std::string, 6> inputs {"0*1","1*0","1*1","9*0","5*9","0*9"};
+  
+  for(auto& inp : inputs)
+  {
+    auto parse_res = Earley::earley_parse(inp, test_grammar);
+
+    EXPECT_EQ(parse_res, true);
+  }
+}
+
+TEST(earley, MulFail)
+{
+  const std::array<std::string, 5> inputs {"0*","*0","1*","*1","*"};
+  
+  for(auto& inp : inputs)
+  {
+    auto parse_res = Earley::earley_parse(inp, test_grammar);
+
+    std::cout << std::boolalpha << "parse_res (" << parse_res << ")" << std::endl;
+
+    EXPECT_EQ(parse_res, false);
+  }
+}
+
+TEST(earley, BadOpFail1)
+{
+  const std::array<std::string, 5> inputs {"0-","-0","1-","-1","-"};
+  
+  for(auto& inp : inputs)
+  {
+    auto parse_res = Earley::earley_parse(inp, test_grammar);
+
+    std::cout << std::boolalpha << "parse_res (" << parse_res << ")" << std::endl;
+
+    EXPECT_EQ(parse_res, false);
+  }
+}
+
+TEST(earley, BadOpFail2)
+{
+  const std::array<std::string, 5> inputs {"0/","/0","1/","/1","/"};
+  
+  for(auto& inp : inputs)
+  {
+    auto parse_res = Earley::earley_parse(inp, test_grammar);
+
+    std::cout << std::boolalpha << "parse_res (" << parse_res << ")" << std::endl;
+
+    EXPECT_EQ(parse_res, false);
+  }
+}
+
 
 int main(int argc, char** argv)
 {

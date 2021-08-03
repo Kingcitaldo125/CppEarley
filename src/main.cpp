@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 	auto grammar = Earley::process_grammar(loaded_gramm);
 	const std::array<std::string, 4> inputs{ "1","1+","1+2","2+3*4" };
 
-	for (auto& inp : inputs)
+	for (const auto& inp : inputs)
 	{
 		cout << "Input <" << inp << "> = " << std::boolalpha << Earley::earley_parse(inp, grammar) << endl;
 	}

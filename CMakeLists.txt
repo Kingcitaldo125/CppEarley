@@ -4,9 +4,6 @@ project(CppEarley VERSION 1.0)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
-
 set(PROJECT_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
 option(COPY_LIBS "Copy the static/shared libs to a 'lib' folder in the 'CMAKE_SOURCE_DIR'" ON)
