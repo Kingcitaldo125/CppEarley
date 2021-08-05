@@ -59,7 +59,7 @@ std::string Earley::swap_around_dot(const std::string& strng)
 	auto dot_idx = strng.find(Earley::dot);
 	auto next_item = strng.at(dot_idx + 1);
 
-	//Swap around a/the lexeme
+	// Swap around a/the lexeme
 	if (Earley::nonterminals.find(next_item) != Earley::nonterminals.end())
 	{
 		std::swap(n_str[dot_idx], n_str[dot_idx + 1]);
