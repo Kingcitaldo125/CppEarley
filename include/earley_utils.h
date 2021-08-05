@@ -1,15 +1,12 @@
 #pragma once
 
-
 #include <set>
 #include <string>
-#include <sstream>
 #include <map>
 #include <tuple>
 #include <list>
-#include <array>
 #include <vector>
-
+#include <sstream>
 
 namespace Earley
 {
