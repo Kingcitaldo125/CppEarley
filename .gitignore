@@ -4,6 +4,9 @@
 # Bin Directories
 *bin/
 
+# Dockerfile
+Dockerfile
+
 # Libs
 *lib/
 
