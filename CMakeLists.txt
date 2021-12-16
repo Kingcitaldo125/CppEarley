@@ -23,9 +23,49 @@ target_link_libraries(${MAIN_TARGET} PUBLIC cpp_earley)
 
 target_include_directories(${MAIN_TARGET}
   PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/>
-    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-install(TARGETS cpp_earley cpp_earley_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/CppEarleyConfig.cmake"
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/CppEarley
+)
+
+write_basic_package_version_file(
+  ${PROJECT_NAME}ConfigVersion.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion
+)
+
+install(TARGETS 
+        cpp_earley
+        cpp_earley_shared
+        EXPORT CppEarleyTargets
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(EXPORT CppEarleyTargets
+        FILE CppEarleyTargets.cmake
+        NAMESPACE CppEarley::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/CppEarley
+)
+
+install(FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/CppEarleyConfig.cmake
+        DESTINATION
+        ${CMAKE_INSTALL_LIBDIR}/cmake/CppEarley)
+
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  FILES_MATCHING
+  PATTERN *.h
+)
+
