@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(CppEarley
-  VERSION 1.1.0
+  VERSION 1.2.0
   DESCRIPTION "Basic C++ Earley Parser"
   LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 set(MAIN_TARGET main)
 
