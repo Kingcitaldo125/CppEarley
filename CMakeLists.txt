@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(CppEarley
-  VERSION 1.2.0
+  VERSION 1.3.0
   DESCRIPTION "Basic C++ Earley Parser"
   LANGUAGES CXX)
 
@@ -11,20 +11,19 @@ set(MAIN_TARGET main)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+
+option(BUILD_TESTS "Option to build the test suite" ON)
 
 include_directories(include)
 
 add_subdirectory(include)
 add_subdirectory(src)
 
-add_executable(${MAIN_TARGET} src/main.cpp)
-
-target_link_libraries(${MAIN_TARGET} PUBLIC cpp_earley)
-
 target_include_directories(${MAIN_TARGET}
   PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
@@ -69,3 +68,7 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
   PATTERN *.h
 )
 
+if(BUILD_TESTS)
+  add_subdirectory(test)
+  include(CTest)
+endif()
