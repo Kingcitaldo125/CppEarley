@@ -72,3 +72,6 @@ if(BUILD_TESTS)
   add_subdirectory(test)
   include(CTest)
 endif()
+
+# Must be last
+include(CPack)
